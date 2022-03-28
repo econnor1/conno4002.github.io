@@ -1,21 +1,18 @@
 ---
-title: "Your Name"
+title: "Eric Connor"
 ---
 
-<div style= "float : left; position : relative; top: 0px; width : 450px; height : 360px; padding-right: 24px; margin-bottom : 0px">
-![Your Photo](./Images/Picture.jpg)
+<div style= "float : right; position : relative; top: 0px; width : 250px; height : 200px; padding-right: 100px; margin-bottom : 0px">
+![](./Images/Picture.jpg)
 
 </div>
 
 <font size = "4"> 
-*You Bio Here*  
+Hello! My name is Eric Connor and currently a 2nd year M.S. student in the Department of Biostatistics at the University of Minnesota. My passion is using data-driven decision-making to improve public health. I consistently overlayed my classical biostatistics and mathematical training with applied collaborations in academia and government. In doing so, I developed strong teamwork skills, expanded my understanding of a wide variety of statistical techniques, and prepared myself to contribute to a team shaping the future of public health. Some of my various research interests include clinical trials, Bayesian statistics, survival analysis, and causal inference. My passion is using data-driven decision-making to improve public health. I consistently overlayed my classical biostatistics and mathematical training with applied collaborations in academia and government. In doing so, I developed strong teamwork skills, expanded my understanding of a wide variety of statistical techniques, and prepared myself to contribute to a team shaping the future of public health. Some of my various research interests include clinical trials, Bayesian statistics, survival analysis, and causal inference. Some of my various research interests include clinical trials, Bayesian statistics, survival analysis, and causal inference. My passion is using data-driven decision-making to improve public health. I consistently overlayed my classical biostatistics and mathematical training with applied collaborations in academia and government. In doing so, I developed strong teamwork skills, expanded my understanding of a wide variety of statistical techniques, and prepared myself to contribute to a team shaping the future of public health. Some of my various research interests include clinical trials, Bayesian statistics, survival analysis, and causal inference.
 </font>  
   
   
   
 <font size = "4">
-*Paragraph 2*  
+Outside of my professional interests, I am also an avid sports fan. I support the Baltimore Orioles, Washington Capitals, and my undergraduate UMBC Retrievers! Currently, I have one of the worst March Madness brackets in the country.
 </font>
-
->"A quote" - Somebody
-
