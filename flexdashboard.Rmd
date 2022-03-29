@@ -1,0 +1,184 @@
+---
+title: "Virtual Dashboard of Various Data Studies"
+author: "Eric Connor"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+---
+
+```{r setup, include = FALSE, echo = FALSE}
+library(tidyverse)
+library(lubridate)
+library(gt)
+library(paletteer)
+library(plotly)
+library(flexdashboard)
+library(forcats)
+library(DataExplorer)
+library(stringr)
+library(RColorBrewer)
+
+#Working directory for .RMD
+knitr::opts_knit$set(echo = TRUE,
+                     root.dir = rprojroot::find_rstudio_root_file())
+
+#Controlling figure output in markdown
+knitr::opts_chunk$set(
+#  fig.height =   
+  fig.width = 6,
+#  fig.asp = .5,
+  out.width = "90%",
+#  out.height = 
+ fig.align  = "center",
+  cache = FALSE,
+  eval  = TRUE,
+  echo  = TRUE,
+  warning = FALSE
+)
+
+#My Colours (from viridis)
+my_purple <- "#440154FF"
+my_yellow <- "#FDE725FF"
+
+#Set Theme for ggplot2
+theme_set(theme_bw() + theme(plot.title = element_text(hjust = 0.5), legend.position = "bottom"))
+
+#Set Scientific notation output and decimal places for knitr
+options(scipen = 999)
+options(digits = 4)
+options(dplyr.summarise.inform = FALSE)
+
+```
+
+```{r data_read, include = FALSE}
+
+instacart <- read.csv("data/instacart.csv") # Instacart dataset for Plot B
+penguin.df <- read_rds("./data/penguin.RDS") # Penguin dataset for Plot A
+brfss <- read.csv("data/brfss_smart_2010.csv") # BRFSS dataset for Plot C
+
+```
+
+Column {data-width=550}
+-----------------------------------------------------------------------
+
+### Flipper Lengths vs. Bill Lengths of Penguins on Island
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+
+# Use Plot_ly syntax to create figure instead of directly calling plotly function
+penguin.df %>%
+  mutate(text_label = str_c("Species: ", species, # Customize plotly interactive appearance
+                            "\nBill Length: ", bill_length_mm,
+                            "\nFlipper Length: ", flipper_length_mm,
+                            "\nSex: ", sex,
+                            "\nYear: ", year)
+         ) %>%
+  plot_ly( # Set x and y variables for scatter plot, among species color
+    x = ~bill_length_mm,
+    y = ~flipper_length_mm,
+    color = ~species,
+    type = "scatter",
+    text = ~text_label, 
+    alpha = 1
+  ) %>%
+  layout(title = "Penguins Flipper Length (mm) vs. Bill Length (mm) by Species", # Customize plot features
+         xaxis = list(title = "Bill Length (mm)"),
+         yaxis = list(title = "Flipper Length (mm)"),
+         legend = list(title = "Species"))
+
+```
+
+Column {data-width=450}
+-----------------------------------------------------------------------
+
+### Number of Purchases by by Aisle and Department in Grocery Store
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+
+top_6.insta <- instacart %>%
+  pull(department) %>%
+  fct_count() %>% # Create counts among each of departments in store
+  arrange(desc(n)) %>%
+  top_n(n = 6) %>% # Take top 6 departments
+  mutate(department = factor(f)) %>%
+  select(department, n) # Keep top 6 departments in dataset
+
+num_items <- instacart %>%
+  filter(department %in% top_6.insta$department) %>% # Subset dataset based on top 6 departments from above
+  mutate(department = str_to_title(department),
+         aisle = str_to_title(aisle)) %>%
+  group_by(department, aisle) %>%
+  summarise(N = n()) %>% # Create counts among each of aisles within top 6 departments
+  arrange(desc(N), .by_group = TRUE) %>%
+  slice(1:6) %>% # Take top 6 aisles
+  ungroup() %>%
+  arrange(desc(N)) %>%
+  mutate(aisle = fct_reorder(factor(aisle), N, .desc = FALSE),
+         department = factor(department)) %>% # Order top to bottom frequency of aisles in each department
+  mutate(text_label = str_c(aisle, 
+                            "\nDepartment: ", department,
+                            "\nFrequency: ", N)
+         ) %>%
+  # Create plot for number of items purchased by aisle and department in order of aisles, color coded by department
+  ggplot(aes(x = aisle, y = N, fill = department, text = text_label)) +
+  geom_col() +
+  coord_flip() +
+  theme_bw() + 
+  ggtitle("Number of Items Purchases \nby Aisle and Department") +
+  xlab("Number of Item Purchases") +
+  ylab("Aisle") + 
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(vjust = 0.5, angle = 0)) +
+  scale_fill_discrete(name = "Grocery Department")
+
+scatter.plotly <- ggplotly(num_items, tooltip = "text") # Output to ggplotly object
+
+scatter.plotly
+
+```
+
+### Mean Proportion and Sample Size on Survey Dataset
+
+```{r, echo = FALSE, warning=FALSE, message=FALSE}
+
+brfss_tidy <- brfss %>%
+  filter(Topic == "Overall Health") %>% # Subset survey question to overall health question
+  mutate(State = Locationabbr,
+         County = str_sub(Locationdesc, 5),
+         State = factor(State),
+         Response = factor(Response),
+         County = factor(County)) %>%
+  select(Year, State, County, Response, Sample_Size, Data_value) # Clean dataset by subsetting the data viewed
+
+brfss_mean_ss <- brfss_tidy %>%
+  filter(State == "MN") %>% # Filter to only Minnesota survey participants
+  group_by(Response, Year) %>%
+  summarise(mean_ss = mean(Sample_Size), # Obtain overall mean and standard deviation of sample size and proportion among MN participants
+            sd_ss = sd(Sample_Size),
+            mean_prop = mean(Data_value),
+            sd_prop = sd(Data_value)) %>%
+  filter(Response %in% c("Excellent", "Good", "Poor")) %>%
+  pivot_longer(cols = c("mean_ss", "mean_prop"), names_to = "Measure_type", values_to = "Value") %>% # Get dataset into long format
+  select(-c("sd_ss", "sd_prop")) %>%
+  mutate(Measure_type = fct_recode(Measure_type,
+                                   "Sample Size" = "mean_ss",
+                                   "Proportion" = "mean_prop"),
+         Value = round(Value, digits = 2)) %>%
+  mutate(text_label = str_c(Measure_type, # Add features to interactive ggplotly format
+                            "\nValue: ", Value,
+                            "\nResponse: ", Response)) %>%
+  ggplot(aes(x = Year, y = Value, color = Response)) + # Plot line graph and points for each year of sample size and proportion
+  geom_line() +
+  geom_point(aes(text = text_label)) +
+  facet_wrap(~ Measure_type, scales = "free") +
+  ggtitle("Mean Proportion and Sample Size for survey question \n'How is your general health' response from 2002 and 2010 in Minnesota counties") + 
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        axis.title.y = element_text(angle = 0, vjust = 0.5))
+
+scatline.plotly <- ggplotly(brfss_mean_ss, tooltip = "text") # Output to ggplotly object
+
+scatline.plotly
+
+```

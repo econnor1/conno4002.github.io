@@ -1,17 +1,28 @@
-name: "Yay internet!"
+name: "Homework 5"
 header-includes: 
   \usepackage{graphicx}
   \usepackage{float}
+  \usepackage{amsmath}
 output_dir: "."
 navbar:
-  title: "Eric Connor"
+  title: "Home"
   right:
-    - text: "About"
-      href: about.html
+    - text: "Professional Documents"
+      menu: 
+          - text: "Resume"
+            href: resume.html
+          - text: "Bracket"
+            href: http://dustinlueker.com/ncaa2022/OverallpicksforEricConnor.html
+    - text: "Recent Work"
+      menu: 
+          - text: "Flexdashboard"
+            href: flexdashboard.html
     - icon: fa-envelope fa-lg
-      href: mailto:<nevil066@umn.edu>
+      href: mailto:<conno400@umn.edu>
     - icon: fa-github fa-lg
-      href: http://github.com/nevilleq/
+      href: http://github.com/econnor1/
+    - icon: fa-linkedin fa-lg
+      href: https://www.linkedin.com/in/eric-connor/
 output:  
    html_document:
     theme: flatly
