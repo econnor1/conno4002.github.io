@@ -4,7 +4,7 @@ header-includes:
   \usepackage{float}
 output_dir: "."
 navbar:
-  title: "Home"
+  title: "Eric Connor"
   right:
     - text: "About"
       href: about.html
